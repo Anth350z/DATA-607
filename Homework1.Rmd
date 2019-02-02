@@ -1,0 +1,105 @@
+---
+title: 'DATA-607-Homework #1- Loading Data into a Data Frame'
+author: "Anthony Munoz"
+date: "2/2/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+---
+title: "DATA-607-Homework #1- Loading Data into a Data Frame "
+output: html_document
+author: "Anthony Munoz" 
+date: "2/1/2019"
+---
+
+Data source: https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data <br / >
+    (a) Mushroom records drawn from The Audubon Society Field Guide to North <br />
+        American Mushrooms (1981). G. H. Lincoff (Pres.), New York: Alfred <br />
+        A. Knopf <br />
+    (b) Donor: Jeff Schlimmer (Jeffrey.Schlimmer@a.gp.cs.cmu.edu) <br />
+    (c) Date: 27 April 1987 <br />
+    retrieved: 2/1/2019
+    
+<h4>Data Dictionary</h4>
+
+ <h5>Attribute Information: </h5>
+ <div class= "row">
+     1. classes:                  edible=e, poisonous=p 
+     2. cap-shape:                bell=b,conical=c,convex=x,flat=f, 
+                                  knobbed=k,sunken=s 
+     3. cap-surface:              fibrous=f,grooves=g,scaly=y,smooth=s
+     4. cap-color:                brown=n,buff=b,cinnamon=c,gray=g,green=r,
+                                  pink=p,purple=u,red=e,white=w,yellow=y 
+     5. bruises?:                 bruises=t,no=f 
+     6. odor:                     almond=a,anise=l,creosote=c,fishy=y,foul=f, 
+                                  musty=m,none=n,pungent=p,spicy=s 
+     7. gill-attachment:          attached=a,descending=d,free=f,notched=n 
+     7. gill-spacing:             close=c,crowded=w,distant=d 
+     9. gill-size:                broad=b,narrow=n 
+     10. gill-color:               black=k,brown=n,buff=b,chocolate=h,gray=g, 
+                                  green=r,orange=o,pink=p,purple=u,red=e, 
+                                  white=w,yellow=y 
+    11. stalk-shape:              enlarging=e,tapering=t 
+    12. stalk-root:               bulbous=b,club=c,cup=u,equal=e, 
+                                  rhizomorphs=z,rooted=r,missing=? 
+    13. stalk-surface-above-ring: fibrous=f,scaly=y,silky=k,smooth=s 
+    14. stalk-surface-below-ring: fibrous=f,scaly=y,silky=k,smooth=s 
+    15. stalk-color-above-ring:   brown=n,buff=b,cinnamon=c,gray=g,orange=o, 
+                                  pink=p,red=e,white=w,yellow=y 
+    16. stalk-color-below-ring:   brown=n,buff=b,cinnamon=c,gray=g,orange=o, 
+                                  pink=p,red=e,white=w,yellow=y 
+    17. veil-type:                partial=p,universal=u 
+    18. veil-color:               brown=n,orange=o,white=w,yellow=y 
+    19. ring-number:              none=n,one=o,two=t 
+    20. ring-type:                cobwebby=c,evanescent=e,flaring=f,large=l, 
+                                  none=n,pendant=p,sheathing=s,zone=z 
+    21. spore-print-color:        black=k,brown=n,buff=b,chocolate=h,green=r, 
+                                  orange=o,purple=u,white=w,yellow=y 
+    22. population:               abundant=a,clustered=c,numerous=n, 
+                                  scattered=s,several=v,solitary=y 
+    23. habitat:                  grasses=g,leaves=l,meadows=m,paths=p, 
+                                  urban=u,waste=w,woods=d 
+
+</div>
+<h4>Retrieving the Data</h4>
+
+
+
+```{r}
+##getting and saving the data.
+data = read.csv(file = "https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data", header = FALSE, sep = ",")
+## data preview
+head(data)
+```
+
+<h4>Subset</h4>
+
+```{r}
+## a subset from the and seelcting 5 variables  
+data.frame = subset(data, select = c(V1,V2,V4,V9,V11))
+## chaging the colunms name
+ colnames(data.frame) <- c("class","cap-shape","cap-color","gill-size","stalk-shape")
+ ## data preview
+ head(data.frame)
+
+```
+
+
+<h4>renamimg the abbrebiation </h4>
+
+```{r}
+## selecting the abbreviation and replacing for names in each column
+levels(data.frame$class) <- c("edible","poisonous")
+levels(data.frame$`cap-shape`) <- c("bell","conical","flat","knobbed","sunken","convex")
+levels(data.frame$`cap-color`) <- c("buff","cinnamon","red","gray","brown","pink","green","purple","white","yellow")
+levels(data.frame$`gill-size`) <- c("broad","narrow")
+levels(data.frame$`stalk-shape`) <- c("enlarging","tapering")
+## data preview
+head(data.frame)
+## data summary
+summary(data.frame)
+```
