@@ -1,0 +1,52 @@
+---
+title: "Data-607 assignment_2"
+author: "Anthony Munoz"
+date: "2/10/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+#The library for the MYSQL connection
+library(DBI)
+
+```
+
+
+
+```{r}
+
+con <- dbConnect(RMySQL::MySQL(), 
+                 dbname = "movie", 
+                 host = "35.184.91.108", 
+                 port = 3306,
+                 user = "root",
+                 password = "root")
+
+data <- dbGetQuery(con, "select u.name,r.scale_rating,m.movie_name from user u
+left join rating r
+on u.iduser = r.iduser
+left join movie_rating mr
+on r.idrating = mr.idrating
+left join movie m
+on mr.idmovie = m.idmovie;")
+
+#review of the data
+head(data)
+
+#summarry
+
+summary(data)
+
+#grouping the data by movie and the sum of the rating points and put into the graph
+barplot(tapply(data$scale_rating, data$movie_name, FUN=sum), ylim = c(0,12), main = "Rating Movies", col = "blue")
+
+```
+
+observing the graph we see that movie batman and que leon got the highest rating 
