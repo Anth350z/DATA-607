@@ -26,7 +26,7 @@ library(ggplot2)
 library(DT)
 
 #Reading the Tournament file and separing by | and omiting the NAs
-data = read.csv(file = "t_file.txt", header = FALSE, sep = "|",na.strings = c(" ", ""),stringsAsFactors = FALSE)[1:10] %>% na.omit()
+data = read.csv(file = "https://raw.githubusercontent.com/Anth350z/DATA-607/master/Project_1/t_file.txt", header = FALSE, sep = "|",na.strings = c(" ", ""),stringsAsFactors = FALSE)[1:10] %>% na.omit()
 
 #Spliting the Players and merging rows
 data.new <- cbind(data[seq(1, nrow(data), by = 2 ), ],
