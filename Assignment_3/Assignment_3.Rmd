@@ -1,5 +1,4 @@
 ---
-<<<<<<< HEAD
 title: "Data607 Assignment"
 author: "David Apolinar, Anthony Muñoz"
 date: "2/14/2019"
@@ -16,22 +15,6 @@ library(stringr)
 ```{r 3-1}
 
 raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
-=======
-title: "Assignment_3"
-author: "Anthony Munoz"
-date: "2/11/2019"
-output: html_document
----
-##3-a
-```{r}
-library(stringr)
-
-raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
-```
-
-
-```{r}
->>>>>>> parent of 9dec957... Delete Assignment_3.Rmd
 regex <- "([a-zA-Z,. ]){2,}"
 name <- unlist(str_extract_all(raw.data, regex))
 name
@@ -42,7 +25,6 @@ data.name <-gsub("(\\w+)\\,\\s(.*)","\\2 \\1", data.name)
 df <- data.frame(str_split_fixed(data.name, " ", 2))
 colnames(df) <- c("First Name","Last Name")
 df
-<<<<<<< HEAD
 
 ```
 #### Problem 3-2
@@ -128,13 +110,6 @@ tolower(final.msg)
 #### Find the Hidden Message
 ```{r Anthony}
 
-=======
-```
-
-
-##9
-```{r}
->>>>>>> parent of 9dec957... Delete Assignment_3.Rmd
 data <- "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0Tanwo\nUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigO\nd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5\nfy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
 
 data <- paste(unlist(str_extract_all(data,"[A-Z]")), collapse = "")
@@ -142,7 +117,4 @@ gsub("(.{15})(.{3})(.{3})(.{1})(.{5})(.{4})","\\1 \\2 \\3 \\4 \\5 \\6", data)
 
 
 ```
-<<<<<<< HEAD
 
-=======
->>>>>>> parent of 9dec957... Delete Assignment_3.Rmd
