@@ -18,7 +18,7 @@ library(ggplot2)
 library(DT)
 
 #Reading the file .CSV
-df <- data.frame(read.csv2(file = "flight.csv", sep= ",",header = TRUE)) %>% na.omit()
+df <- data.frame(read.csv2(file = "https://raw.githubusercontent.com/Anth350z/DATA-607/master/Assignment_5/flight.csv", sep= ",",header = TRUE)) %>% na.omit()
 names(df)[1:2] <- c("Airlines", "Status")
 df[c(2,4),1] <- c("ALASKA", "AM WEST")
 

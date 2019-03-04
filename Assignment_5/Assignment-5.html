@@ -315,7 +315,7 @@ library(ggplot2)
 library(DT)
 
 #Reading the file .CSV
-df &lt;- data.frame(read.csv2(file = &quot;flight.csv&quot;, sep= &quot;,&quot;,header = TRUE)) %&gt;% na.omit()
+df &lt;- data.frame(read.csv2(file = &quot;https://raw.githubusercontent.com/Anth350z/DATA-607/master/Assignment_5/flight.csv&quot;, sep= &quot;,&quot;,header = TRUE)) %&gt;% na.omit()
 names(df)[1:2] &lt;- c(&quot;Airlines&quot;, &quot;Status&quot;)
 df[c(2,4),1] &lt;- c(&quot;ALASKA&quot;, &quot;AM WEST&quot;)
 
@@ -326,8 +326,8 @@ tidy.data.wide &lt;- tidy.data  %&gt;% spread(Status, flight_num) %&gt;% mutate(
 <div id="datatable" class="section level1">
 <h1>Datatable</h1>
 <pre class="r"><code>datatable(tidy.data) </code></pre>
-<div id="htmlwidget-0c74fcba047fb85b1f53" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-0c74fcba047fb85b1f53">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["ALASKA","ALASKA","AM WEST","AM WEST","ALASKA","ALASKA","AM WEST","AM WEST","ALASKA","ALASKA","AM WEST","AM WEST","ALASKA","ALASKA","AM WEST","AM WEST","ALASKA","ALASKA","AM WEST","AM WEST"],["on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed"],["Los.Angeles","Los.Angeles","Los.Angeles","Los.Angeles","Phoenix","Phoenix","Phoenix","Phoenix","San.Diego","San.Diego","San.Diego","San.Diego","San.Francisco","San.Francisco","San.Francisco","San.Francisco","Seattle","Seattle","Seattle","Seattle"],[497,62,694,117,221,12,4840,415,212,20,383,65,503,102,320,129,1841,305,201,61]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Airlines<\/th>\n      <th>Status<\/th>\n      <th>City<\/th>\n      <th>flight_num<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":4},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-7f9966ae7802d49cd597" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-7f9966ae7802d49cd597">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["ALASKA","ALASKA","AM WEST","AM WEST","ALASKA","ALASKA","AM WEST","AM WEST","ALASKA","ALASKA","AM WEST","AM WEST","ALASKA","ALASKA","AM WEST","AM WEST","ALASKA","ALASKA","AM WEST","AM WEST"],["on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed","on time","delayed"],["Los.Angeles","Los.Angeles","Los.Angeles","Los.Angeles","Phoenix","Phoenix","Phoenix","Phoenix","San.Diego","San.Diego","San.Diego","San.Diego","San.Francisco","San.Francisco","San.Francisco","San.Francisco","Seattle","Seattle","Seattle","Seattle"],[497,62,694,117,221,12,4840,415,212,20,383,65,503,102,320,129,1841,305,201,61]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Airlines<\/th>\n      <th>Status<\/th>\n      <th>City<\/th>\n      <th>flight_num<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":4},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="graphs" class="section level1">
 <h1>Graphs</h1>
