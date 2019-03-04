@@ -2,19 +2,73 @@
 title: "Assignment_5"
 author: "Anthony Munoz"
 date: "3/3/2019"
-output: html_document
+output:
+  html_document:
+   toc: true
+   toc_float: true
 ---
+# Data Wrangling 
+
+For this Assignment I use dplyr, tidyr, ggplot2 and Datatable. First of all, I create the csv file and then read the file into RStudio. I use method such gather and spread to get a wide structure of the data and also use mutate method in order to add column to the data frame.
 
 ```{r}
 library(dplyr)
 library(tidyr)
+library(ggplot2)
+library(DT)
 
+#Reading the file .CSV
 df <- data.frame(read.csv2(file = "flight.csv", sep= ",",header = TRUE)) %>% na.omit()
 names(df)[1:2] <- c("Airlines", "Status")
 df[c(2,4),1] <- c("ALASKA", "AM WEST")
 
-
-tidy.data <- gather(df,City, flight_num , 3:7 )
-
-tidy.data %>% group_by(Airlines,Status) %>% summarise(Total = sum(flight_num))
+#using gather and spread in order to organize the data
+tidy.data <- gather(df,City, flight_num , 3:7 ) 
+tidy.data.wide <- tidy.data  %>% spread(Status, flight_num) %>% mutate(Total_flight = `on time` + delayed) %>% mutate(time_ratio = `on time` / Total_flight) %>% mutate(delayed_ratio = 1- time_ratio)
 ```
+# Datatable
+```{r Datatable}
+datatable(tidy.data) 
+
+```
+
+
+
+# Graphs
+```{r Graphs}
+#counting the on time and delayed by Airlines
+Airlines.count <- tidy.data %>% group_by(Airlines,Status) %>% summarise(Total = sum(flight_num)) 
+
+ggplot(Airlines.count, aes(fill=Airlines, y=Total, x=Status)) + 
+    geom_bar( position="dodge", 
+              stat="identity") + scale_fill_manual(values=c("#999999", "#E69F00"))
+
+#on time count
+ggplot(tidy.data.wide, aes(fill=Airlines, y=`on time`, x=City)) + 
+    geom_bar( position="dodge", 
+              stat="identity") + scale_fill_manual(values=c("#999999", "#E69F00"))
+
+#delayed count
+ggplot(tidy.data.wide, aes(fill=Airlines, y=delayed, x=City)) + 
+    geom_bar( position="dodge", 
+              stat="identity") + scale_fill_manual(values=c("#999999", "#E69F00"))
+
+
+#on time ratio
+ggplot(tidy.data.wide, aes(fill=Airlines, y=time_ratio, x=City)) + 
+    geom_bar( position="dodge", 
+              stat="identity") + scale_fill_manual(values=c("#999999", "#E69F00"))
+
+#delayed time Ratio
+ggplot(tidy.data.wide, aes(fill=Airlines, y=delayed_ratio, x=City)) + 
+    geom_bar( position="dodge", 
+              stat="identity") + scale_fill_manual(values=c("#999999", "#E69F00"))
+
+```
+
+# conclusion
+
+Looking at the graphs airline AM WEST has more on time flights comparing to ALASKA. but 
+when we compared the Ratio on time by city of both airlines we noticed that ALASKA airline has better performing result on time ratio flights.
+
+
