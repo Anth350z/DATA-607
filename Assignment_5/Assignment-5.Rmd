@@ -1,0 +1,20 @@
+---
+title: "Assignment_5"
+author: "Anthony Munoz"
+date: "3/3/2019"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+df <- data.frame(read.csv2(file = "flight.csv", sep= ",",header = TRUE)) %>% na.omit()
+names(df)[1:2] <- c("Airlines", "Status")
+df[c(2,4),1] <- c("ALASKA", "AM WEST")
+
+
+tidy.data <- gather(df,City, flight_num , 3:7 )
+
+tidy.data %>% group_by(Airlines,Status) %>% summarise(Total = sum(flight_num))
+```
