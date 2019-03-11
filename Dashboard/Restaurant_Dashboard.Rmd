@@ -1,0 +1,184 @@
+---
+title: "NYC Restaurants Inspection"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: yeti
+    orientation: rows
+    vertical_layout: fill
+    
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(readr)
+library(leaflet)
+library(zipcode)
+library(dplyr)
+library(tidyr)
+library(plotly)
+library(DT)
+
+library(tidyr)
+library(treemapify)
+library(stringr)
+library(treemap)
+library(revgeo)
+```
+
+
+```{r}
+
+data("zipcode")
+df <- read_csv(file = "data.csv")
+df <- as.data.frame(df[1:180,]) %>% select(BORO,ZIPCODE,`CUISINE DESCRIPTION`,`VIOLATION CODE`,`CRITICAL FLAG`,SCORE,GRADE)  %>% drop_na() 
+#df <- df[,c("BORO","ZIPCODE","CUISINE DESCRIPTION","VIOLATION CODE","CRITICAL FLAG","SCORE","GRADE")] %>% drop_na()
+
+  zip.code <- zipcode %>% select(ZIPCODE = zip, longitude, latitude) %>% na.omit  
+  zip.code$ZIPCODE <- as.numeric(zip.code$ZIPCODE)
+  df.new <- df %>% left_join(zip.code, by = "ZIPCODE") %>% drop_na() %>% filter(ZIPCODE != "12345")
+
+
+
+```
+Overview & Description
+===========================================
+On this project i worked on NYC Restaurant inpections dataset. Some of the analysis i worked on it are:
+
+
+I have used RSocrata API pachage to retrive the data from NYC OpenData website.
+
+
+
+Dashboard 
+====================
+
+Row
+-----------------------------------------------------------------------
+
+### DataSet Events
+
+```{r}
+valueBox(length(df.new$`VIOLATION CODE`),
+         icon = "fas fa-book")
+
+```
+
+### Bronx
+
+```{r}
+valueBox(length(df.new$BORO[df.new$BORO == "BRONX"] ),
+         icon = 'fas fa-building')
+
+```
+
+### Brooklyn
+
+```{r}
+valueBox(length(df.new$BORO[df.new$BORO == "BROOKLYN"] ),
+         icon = 'fas fa-building')
+
+```
+
+
+### Manhattan
+
+```{r}
+valueBox(length(df.new$BORO[df.new$BORO == "MANHATTAN"] ),
+         icon = 'fas fa-building')
+
+```
+
+
+
+
+### Queen
+
+```{r}
+valueBox(length(df.new$BORO[df.new$BORO == "QUEENS"] ),
+         icon = 'fas fa-building')
+
+```
+
+
+### Staten Island
+
+```{r}
+valueBox(length(df.new$BORO[df.new$BORO == "STATEN ISLAND"] ),
+         icon = 'fas fa-building')
+
+```
+
+Row
+-------------------------------
+
+### Data Count
+
+```{r}
+plot.1 <- df.new %>% group_by(`VIOLATION CODE`) %>%
+        summarise(total = n()) %>%
+          plot_ly(x=~`VIOLATION CODE` , 
+                  y = ~total , 
+                  type = "bar",
+                   xaxis = list(autotick = T, dtick = 1),
+                
+                 color = "blue") %>% layout(xaxis = list(title = "Violation Code"),
+                                                yaxis = list(title = "Data Count"))
+
+plot.1
+
+
+```
+
+
+###  Data By boro
+
+```{r}
+plot.1 <- df.new %>% group_by(BORO,.drop = T) %>%
+        filter(BORO != "Missing" ) %>%
+        summarise(total = n()) %>%
+          plot_ly(x=~ BORO , 
+                  y = ~total , 
+                  type = "bar",
+                 #name = c("Bronx","Brooklyn","Manhattan","Queens","Staten Island"),
+                 name = c("Bronx","Brooklyn","Manhattan","Queens","Staten Island"),
+                 color = "blue") %>% layout(xaxis = list(title = "BORO"),
+                                                yaxis = list(title = "Data Count"))
+
+plot.1
+```
+
+
+
+
+Map Marker
+================
+
+Row
+----------------------------
+
+### Map
+
+```{r}
+
+  
+  leaflet(data = df.new) %>% addTiles() %>%
+    addMarkers(~longitude, ~latitude, label= ~as.character(`CRITICAL FLAG`), popup    = ~as.character(paste("Grade: ",GRADE)),clusterOptions = markerClusterOptions())
+
+
+```
+
+ Data Table
+=========================
+
+Row
+-------------------
+
+### Data Table
+
+```{r}
+
+datatable(df.new)
+
+```
+
+
