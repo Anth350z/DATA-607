@@ -27,6 +27,7 @@ library(revgeo)
 library(tm)
 library(wordcloud2)
 library(RSocrata)
+library(wordcloud)
 ```
 
 
@@ -55,10 +56,14 @@ df.new <- df %>% left_join(zip.code, by = "ZIPCODE") %>% drop_na() %>% filter(ZI
 
 
 ```
+
 Overview & Description
 ===========================================
-Inputs {.sidebar data-width=400}
+
+
+Inputs {.sidebar }
 -----------------------------------------------------------------------
+
 ### Anthony Munoz
 
 On this project, I worked on NYC Restaurant inspections dataset. Some of the analysis I worked on it are: calculating and comparing violations data by year, weekdays and borough. Answer question such a witch year have the highest or lowest violations. 
@@ -71,22 +76,26 @@ link: https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspec
 
 
 
-Row {data-width=400}
+Column {data-width=650}
 -----------------------------------------------------------------------
 
-### ok
+### Wordcloud
 
 
 ```{r}
 
-word.new <- word %>% group_by(`CUISINE DESCRIPTION`) %>%
-     summarise(total = n())
-
-
-
-wordcloud2(word.new,size=0.5,backgroundColor = "white" )
-
+#word.new <- word %>% group_by(`CUISINE DESCRIPTION`) %>%
+     #summarise(total = n())
+#wordcloud2(word.new,size=0.5,backgroundColor = "white" )
 #graph for the all violation count
+
+
+word.cloud <- Corpus(VectorSource(word$`CUISINE DESCRIPTION`))
+word.cloud <- tm_map(word.cloud, removePunctuation)
+
+wordcloud(word.cloud, max.words = 2000, random.order = FALSE, col=colors(length(word.cloud)))
+
+
 
 
 ```
@@ -282,7 +291,7 @@ Row
 
   #reduced the dataset for the map in order to get better performance
   leaflet(data = df.new[1:20000,]) %>% addTiles() %>%
-    addMarkers(~longitude, ~latitude, label= ~as.character(`CRITICAL FLAG`), popup    = ~as.character(paste("Grade: ",GRADE,"Violation Code:", `VIOLATION CODE`,"Date:",`INSPECTION DATE`)),clusterOptions = markerClusterOptions() , options = leafletOptions(preferCanvas = TRUE) ) 
+    addMarkers(~longitude, ~latitude, label= ~as.character(`CRITICAL FLAG`), popup    = ~as.character(paste("Grade: ",GRADE,"Violation Code:", `VIOLATION CODE`,"Date:",`INSPECTION DATE`)),clusterOptions = markerClusterOptions() , options = leafletOptions(preferCanvas = F) ) 
 
 ```
 
