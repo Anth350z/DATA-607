@@ -2,6 +2,7 @@
 title: "NYC Restaurants Inspection"
 output: 
   flexdashboard::flex_dashboard:
+    source_code: embed
     theme: yeti
     orientation: rows
     vertical_layout: fill
@@ -23,33 +24,72 @@ library(treemapify)
 library(stringr)
 library(treemap)
 library(revgeo)
+library(tm)
+library(wordcloud2)
+library(RSocrata)
 ```
 
 
 ```{r}
-
+#loading zipcode dataset
 data("zipcode")
-df <- read_csv(file = "data.csv")
-desc <- df
+
+#retriving the data using RSocrata API
+df <- read.socrata("https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j")
+
+names(df) <- sub("\\.", " ", names(df))
+word <- df
+
+
+#retriving the violation code with the description
+description <- df %>% group_by(`VIOLATION DESCRIPTION`,`VIOLATION CODE`) %>% select(`VIOLATION CODE`,`VIOLATION DESCRIPTION`) %>% unique() %>% na.omit()
+
+#selecting the column needed and removing all the NAs
 df <- as.data.frame(df) %>% select(BORO,ZIPCODE,`CUISINE DESCRIPTION`,`VIOLATION CODE`,`CRITICAL FLAG`,SCORE,GRADE, `INSPECTION DATE`)  %>% drop_na() 
+#selecting the zipcode of both dataset to further join them
+zip.code <- zipcode %>% select(ZIPCODE = zip, longitude, latitude) %>% na.omit 
+#zip.code$ZIPCODE <- as.numeric(zip.code$ZIPCODE)
 
-
-zip.code <- zipcode %>% select(ZIPCODE = zip, longitude, latitude) %>% na.omit  
-zip.code$ZIPCODE <- as.numeric(zip.code$ZIPCODE)
+#used a left join by zipcode to in order to retrieve the longituve and latitude from zipcode dataset
 df.new <- df %>% left_join(zip.code, by = "ZIPCODE") %>% drop_na() %>% filter(ZIPCODE != "12345") 
 
-df.new$`INSPECTION DATE`  <-  as.Date(df.new$`INSPECTION DATE`,"%m/%d/%Y")
 
 ```
 Overview & Description
 ===========================================
-On this project i worked on NYC Restaurant inpections dataset. Some of the analysis i worked on it are: calculating and comparing valiolations data by year, weekdays and borought. Answer question such a witch year have the hightest or lowest violations. 
+Inputs {.sidebar data-width=400}
+-----------------------------------------------------------------------
+### Anthony Munoz
+
+On this project, I worked on NYC Restaurant inspections dataset. Some of the analysis I worked on it are: calculating and comparing violations data by year, weekdays and borough. Answer question such a witch year have the highest or lowest violations. 
 
 
-I have used RSocrata API pachage to retrive the data from NYC OpenData website.
+I have used RSocrata API package to retrieve the data from the NYC OpenData website.
 
 I retrieved the data for this project from NYC OpenData
 link: https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j
+
+
+
+Row {data-width=400}
+-----------------------------------------------------------------------
+
+### ok
+
+
+```{r}
+
+word.new <- word %>% group_by(`CUISINE DESCRIPTION`) %>%
+     summarise(total = n())
+
+
+
+wordcloud2(word.new,size=0.5,backgroundColor = "white" )
+
+#graph for the all violation count
+
+
+```
 
 
 
@@ -62,6 +102,7 @@ Row
 ### All Violations count
 
 ```{r}
+#all the violation count of the 5 borough
 valueBox(length(df.new$`VIOLATION CODE`),
          icon = "fas fa-book")
 
@@ -70,6 +111,7 @@ valueBox(length(df.new$`VIOLATION CODE`),
 ### Bronx
 
 ```{r}
+#all the violation count for The Bronx
 valueBox(length(df.new$BORO[df.new$BORO == "BRONX"] ),
          icon = 'fas fa-building')
 
@@ -78,6 +120,7 @@ valueBox(length(df.new$BORO[df.new$BORO == "BRONX"] ),
 ### Brooklyn
 
 ```{r}
+#all the violation count for Brooklyn
 valueBox(length(df.new$BORO[df.new$BORO == "BROOKLYN"] ),
          icon = 'fas fa-building')
 
@@ -87,6 +130,7 @@ valueBox(length(df.new$BORO[df.new$BORO == "BROOKLYN"] ),
 ### Manhattan
 
 ```{r}
+#all the violation count for Manhattan
 valueBox(length(df.new$BORO[df.new$BORO == "MANHATTAN"] ),
          icon = 'fas fa-building')
 
@@ -98,6 +142,7 @@ valueBox(length(df.new$BORO[df.new$BORO == "MANHATTAN"] ),
 ### Queen
 
 ```{r}
+#all the violation count for Queens
 valueBox(length(df.new$BORO[df.new$BORO == "QUEENS"] ),
          icon = 'fas fa-building')
 
@@ -107,6 +152,7 @@ valueBox(length(df.new$BORO[df.new$BORO == "QUEENS"] ),
 ### Staten Island
 
 ```{r}
+#all the violation count for Staten Island
 valueBox(length(df.new$BORO[df.new$BORO == "STATEN ISLAND"] ),
          icon = 'fas fa-building')
 
@@ -118,7 +164,8 @@ Row
 ### Violation Count
 
 ```{r}
-plot <- df.new %>% group_by(`VIOLATION CODE`) %>%
+#graph for the all violation count
+pl <- df.new %>% group_by(`VIOLATION CODE`) %>%
         summarise(total = n()) %>%
           plot_ly(x=~`VIOLATION CODE` , 
                   y = ~total , 
@@ -127,7 +174,7 @@ plot <- df.new %>% group_by(`VIOLATION CODE`) %>%
                 
                  marker=list(color= ~`VIOLATION CODE` , size=20 , opacity=0.9) ) %>% layout(xaxis = list(title = "Violation Code"),yaxis = list(title = "Data Count"))
 
-plot
+pl
 
 
 ```
@@ -135,10 +182,11 @@ plot
 
 > This graph its showing the violations count. and we can see that the most common violation is "10F" which is "Non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed, raised, spaced or movable to allow accessibility for cleaning on all sides, above and underneath the unit."
 
-###  Violation count By borough
+###  Violation count by borough
 
 ```{r}
-plot.graph <- df.new %>% group_by(BORO,.drop = T) %>%
+#graph for the violation count by borough
+pl <- df.new %>% group_by(BORO,.drop = T) %>%
         filter(BORO != "Missing" ) %>%
         summarise(total = n()) %>%
           plot_ly(x=~ BORO , 
@@ -147,7 +195,7 @@ plot.graph <- df.new %>% group_by(BORO,.drop = T) %>%
                  marker=list(color= ~total , size=20 , opacity=0.9)) %>% layout(xaxis = list(title = "Borough"),
                                                 yaxis = list(title = "Violation Count"))
 
-plot.graph
+pl
 ```
 
 Data Analysis 
@@ -159,23 +207,27 @@ Row {.tabset .tabset-fade}
 ### Violations by Weekday and Borough
 
 ````{r}
-
+#extract the Days of the week and agragate it to a column on the dataset
 df.new <- df.new %>% mutate(DAY = format(`INSPECTION DATE`, "%A"))
 
+#group and get the total of count of week and borough exclude some "Missing" values
 total.weekday.borough <- df.new %>% group_by(BORO,DAY) %>% summarise(total = n()) %>% filter(BORO != "Missing" ) 
 
+#create a ggplot grapgh
 gplot <- ggplot(total.weekday.borough, aes(x=BORO, y=total)) + geom_bar(stat = "identity", aes(fill=DAY), position ="dodge") + labs(x= "Borough", y="Violations Count ", title = "Violation by weekday and Borough")
+#convert this ggplot object to a plotly object and get a dynamics graph
 pl <- ggplotly(gplot)
 pl
 ```
 
 
-> on this graph we are comparing the weekday violations and Borough. we can see that Manhattan as the hightest number of violations.
+> On this graph we are comparing the weekday violations and Borough. we can see that Manhattan as the hightest number of violations.
 
 
 ### Violations by Year
 
 ````{r}
+#this is the graph for the year counts
 pl <- df.new %>% mutate( year = format(`INSPECTION DATE`, "%Y")) %>%
     group_by(year) %>%
         summarise(total = n()) %>%
@@ -195,6 +247,28 @@ pl
 
 
 
+### Violations by Category
+
+````{r}
+#This is the graph for the category of critical or not critical
+pl <- df.new %>% 
+    group_by(`CRITICAL FLAG`) %>%
+        summarise(total = n()) %>% na.omit() %>%
+          plot_ly(x=~ `CRITICAL FLAG` , 
+                  y = ~total , 
+                  type = "bar",
+                 marker=list(color= ~total , size=20 , opacity=0.8) ) %>% layout(xaxis = list(title = "Category"),yaxis = list(title = "Critical/Not Critical/Not Aplicable"))
+  
+
+pl
+
+
+```
+
+### Conclusion
+
+The first thing that I saw showing on the graph was that yearly the restaurants are committing more violations being the most popular code violation "10F" which is "Non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed, raised, spaced or movable to allow accessibility for cleaning on all sides, above and underneath the unit.". also I can see that the borough with most violation committed in Manhattan.
+
 
 Map Marker
 ================
@@ -206,25 +280,36 @@ Row
 
 ```{r}
 
-  
-  leaflet(data = df.new) %>% addTiles() %>%
+  #reduced the dataset for the map in order to get better performance
+  leaflet(data = df.new[1:20000,]) %>% addTiles() %>%
     addMarkers(~longitude, ~latitude, label= ~as.character(`CRITICAL FLAG`), popup    = ~as.character(paste("Grade: ",GRADE,"Violation Code:", `VIOLATION CODE`,"Date:",`INSPECTION DATE`)),clusterOptions = markerClusterOptions() , options = leafletOptions(preferCanvas = TRUE) ) 
 
 ```
 
+>For the Map markers I reduced the rows to 20,000 in order to get a better performance.
+
  Data Table
 =========================
 
-Row
+Row {.tabset .tabset-fade}
 -------------------
 
-### Data Table
+### Data Table 
+
+```{r}
+#showing some of the data from the whole dataset. had to reduced the size of the data to obtain a better performace loading the data into datatable.
+datatable(df.new[1:20000,])
+
+```
+
+### Dictionary for Violation Code
 
 ```{r}
 
-datatable(df.new)
-
+datatable(description)
 ```
+
+
 
 
 
