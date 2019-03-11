@@ -84,17 +84,10 @@ Column {data-width=650}
 
 ```{r}
 
-#word.new <- word %>% group_by(`CUISINE DESCRIPTION`) %>%
-     #summarise(total = n())
-#wordcloud2(word.new,size=0.5,backgroundColor = "white" )
-#graph for the all violation count
-
-
 word.cloud <- Corpus(VectorSource(word$`CUISINE DESCRIPTION`))
 word.cloud <- tm_map(word.cloud, removePunctuation)
 
 wordcloud(word.cloud, max.words = 2000, random.order = FALSE, col=colors(length(word.cloud)))
-
 
 
 
