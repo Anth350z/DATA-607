@@ -36,7 +36,7 @@ library(wordcloud)
 data("zipcode")
 
 #retriving the data using RSocrata API
-df <- read.socrata("https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j")
+df <- read.socrata("https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j") %>% drop_na()
 
 names(df) <- sub("\\.", " ", names(df))
 word <- df
@@ -61,18 +61,17 @@ Overview & Description
 ===========================================
 
 
-Inputs {.sidebar }
+Inputs {.sidebar data-width=350}
 -----------------------------------------------------------------------
 
 ### Anthony Munoz
 
-On this project, I worked on NYC Restaurant inspections dataset. Some of the analysis I worked on it are: calculating and comparing violations data by year, weekdays and borough. Answer question such a witch year have the highest or lowest violations. 
-
+This project explores the NYC Restaurant inspections dataset. The analysis includes exploring, calculating and comparing violations by year, weekdays and borough. This project answers questions such a which year has the highest or lowest number of violations.
 
 I have used RSocrata API package to retrieve the data from the NYC OpenData website.
 
-I retrieved the data for this project from NYC OpenData
-link: https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j
+I retrieved the data for this project from NYC OpenData link:
+ https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j
 
 
 
@@ -101,7 +100,7 @@ Dashboard
 Row
 -----------------------------------------------------------------------
 
-### All Violations count
+### Number of Violations
 
 ```{r}
 #all the violation count of the 5 borough
@@ -163,7 +162,7 @@ valueBox(length(df.new$BORO[df.new$BORO == "STATEN ISLAND"] ),
 Row
 -------------------------------
 
-### Violation Count
+### Number of Violations by violation code
 
 ```{r}
 #graph for the all violation count
@@ -174,7 +173,7 @@ pl <- df.new %>% group_by(`VIOLATION CODE`) %>%
                   type = "bar",
                    xaxis = list(autotick = T, dtick = 1),
                 
-                 marker=list(color= ~`VIOLATION CODE` , size=20 , opacity=0.9) ) %>% layout(xaxis = list(title = "Violation Code"),yaxis = list(title = "Data Count"))
+                 marker=list(color= ~`VIOLATION CODE` , size=20 , opacity=0.9) ) %>% layout(xaxis = list(title = "Violation Code"),yaxis = list(title = "Number of Violations"))
 
 pl
 
@@ -184,7 +183,7 @@ pl
 
 > This graph its showing the violations count. and we can see that the most common violation is "10F" which is "Non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed, raised, spaced or movable to allow accessibility for cleaning on all sides, above and underneath the unit."
 
-###  Violation count by borough
+###  Number of Violations by borough
 
 ```{r}
 #graph for the violation count by borough
@@ -195,7 +194,7 @@ pl <- df.new %>% group_by(BORO,.drop = T) %>%
                   y = ~total , 
                   type = "bar",
                  marker=list(color= ~total , size=20 , opacity=0.9)) %>% layout(xaxis = list(title = "Borough"),
-                                                yaxis = list(title = "Violation Count"))
+                                                yaxis = list(title = "Number of Violations"))
 
 pl
 ```
@@ -215,8 +214,12 @@ df.new <- df.new %>% mutate(DAY = format(`INSPECTION DATE`, "%A"))
 #group and get the total of count of week and borough exclude some "Missing" values
 total.weekday.borough <- df.new %>% group_by(BORO,DAY) %>% summarise(total = n()) %>% filter(BORO != "Missing" ) 
 
+
+Week.days=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
 #create a ggplot grapgh
-gplot <- ggplot(total.weekday.borough, aes(x=BORO, y=total)) + geom_bar(stat = "identity", aes(fill=DAY), position ="dodge") + labs(x= "Borough", y="Violations Count ", title = "Violation by weekday and Borough")
+gplot <- ggplot(total.weekday.borough, aes(x=BORO, y=total)) + geom_bar(stat = "identity", aes(fill=ordered(DAY, levels =Week.days), name = "Weekdays"), position ="dodge") + labs(x= "Borough", y="Number of Violations", title = "Violation by weekday and Borough")
+
 #convert this ggplot object to a plotly object and get a dynamics graph
 pl <- ggplotly(gplot)
 pl
@@ -236,7 +239,7 @@ pl <- df.new %>% mutate( year = format(`INSPECTION DATE`, "%Y")) %>%
           plot_ly(x=~ year , 
                   y = ~total , 
                   type = "bar",
-                 marker=list(color= ~year , size=20 , opacity=0.5) ) %>% layout(xaxis = list(title = "Years"),yaxis = list(title = "Data Count"))
+                 marker=list(color= ~year , size=20 , opacity=0.5) ) %>% layout(xaxis = list(title = "Years"),yaxis = list(title = "Number of Violations"))
   
 
 pl
@@ -252,14 +255,17 @@ pl
 ### Violations by Category
 
 ````{r}
+
+category <- c("Critical", "Not Critical","Not Applicable")
+
 #This is the graph for the category of critical or not critical
 pl <- df.new %>% 
     group_by(`CRITICAL FLAG`) %>%
         summarise(total = n()) %>% na.omit() %>%
-          plot_ly(x=~ `CRITICAL FLAG` , 
+          plot_ly(x=~ ordered(`CRITICAL FLAG`, levels =category) , 
                   y = ~total , 
                   type = "bar",
-                 marker=list(color= ~total , size=20 , opacity=0.8) ) %>% layout(xaxis = list(title = "Category"),yaxis = list(title = "Critical/Not Critical/Not Aplicable"))
+                 marker=list(color= rainbow(3), size=20 , opacity=0.8) ) %>% layout(xaxis = list(title = "Category"),yaxis = list(title = "Number of Violations"))
   
 
 pl
