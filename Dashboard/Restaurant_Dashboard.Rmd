@@ -30,14 +30,16 @@ library(revgeo)
 
 data("zipcode")
 df <- read_csv(file = "data.csv")
-df <- as.data.frame(df[1:180,]) %>% select(BORO,ZIPCODE,`CUISINE DESCRIPTION`,`VIOLATION CODE`,`CRITICAL FLAG`,SCORE,GRADE)  %>% drop_na() 
+desc <- df
+df <- as.data.frame(df[1:180,]) %>% select(BORO,ZIPCODE,`CUISINE DESCRIPTION`,`VIOLATION CODE`,`CRITICAL FLAG`,SCORE,GRADE, `INSPECTION DATE`)  %>% drop_na() 
 #df <- df[,c("BORO","ZIPCODE","CUISINE DESCRIPTION","VIOLATION CODE","CRITICAL FLAG","SCORE","GRADE")] %>% drop_na()
+
 
   zip.code <- zipcode %>% select(ZIPCODE = zip, longitude, latitude) %>% na.omit  
   zip.code$ZIPCODE <- as.numeric(zip.code$ZIPCODE)
-  df.new <- df %>% left_join(zip.code, by = "ZIPCODE") %>% drop_na() %>% filter(ZIPCODE != "12345")
+  df.new <- df %>% left_join(zip.code, by = "ZIPCODE") %>% drop_na() %>% filter(ZIPCODE != "12345") 
 
-
+  df.new$`INSPECTION DATE`  <-  as.Date(df.new$`INSPECTION DATE`,"%m/%d/%Y")
 
 ```
 Overview & Description
@@ -147,7 +149,50 @@ plot.1 <- df.new %>% group_by(BORO,.drop = T) %>%
 plot.1
 ```
 
+Data Analysis 
+====================
 
+Row {.tabset .tabset-fade}
+-----------------------------------------------------------------------
+
+### Violations by Year
+
+````{r}
+
+plot.1 <- df.new %>% mutate( year = format(`INSPECTION DATE`, "%Y")) %>%
+    group_by(year) %>%
+        summarise(total = n()) %>%
+          plot_ly(x=~ year , 
+                  y = ~total , 
+                  type = "bar",
+                 color = "blue") %>% layout(xaxis = list(title = "BORO"),
+                                                yaxis = list(title = "Data Count"))
+
+plot.1
+
+
+```
+> This how many violations inspections date happened by Year counts.
+
+
+
+### Violations by Month
+
+````{r}
+
+plot.1 <- df.new %>% mutate( month = format(`INSPECTION DATE`, "%B")) %>%
+    group_by(month,BORO) %>%
+        summarise(total = n()) %>%
+          plot_ly(x=~ month , 
+                  y = ~ BORO , 
+                  type = "bar",
+                 color = "blue") %>% layout(xaxis = list(title = "BORO"),
+                                                yaxis = list(title = "Data Count"))
+
+plot.1
+
+
+```
 
 
 Map Marker
