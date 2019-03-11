@@ -31,23 +31,25 @@ library(revgeo)
 data("zipcode")
 df <- read_csv(file = "data.csv")
 desc <- df
-df <- as.data.frame(df[1:180,]) %>% select(BORO,ZIPCODE,`CUISINE DESCRIPTION`,`VIOLATION CODE`,`CRITICAL FLAG`,SCORE,GRADE, `INSPECTION DATE`)  %>% drop_na() 
-#df <- df[,c("BORO","ZIPCODE","CUISINE DESCRIPTION","VIOLATION CODE","CRITICAL FLAG","SCORE","GRADE")] %>% drop_na()
+df <- as.data.frame(df) %>% select(BORO,ZIPCODE,`CUISINE DESCRIPTION`,`VIOLATION CODE`,`CRITICAL FLAG`,SCORE,GRADE, `INSPECTION DATE`)  %>% drop_na() 
 
 
-  zip.code <- zipcode %>% select(ZIPCODE = zip, longitude, latitude) %>% na.omit  
-  zip.code$ZIPCODE <- as.numeric(zip.code$ZIPCODE)
-  df.new <- df %>% left_join(zip.code, by = "ZIPCODE") %>% drop_na() %>% filter(ZIPCODE != "12345") 
+zip.code <- zipcode %>% select(ZIPCODE = zip, longitude, latitude) %>% na.omit  
+zip.code$ZIPCODE <- as.numeric(zip.code$ZIPCODE)
+df.new <- df %>% left_join(zip.code, by = "ZIPCODE") %>% drop_na() %>% filter(ZIPCODE != "12345") 
 
-  df.new$`INSPECTION DATE`  <-  as.Date(df.new$`INSPECTION DATE`,"%m/%d/%Y")
+df.new$`INSPECTION DATE`  <-  as.Date(df.new$`INSPECTION DATE`,"%m/%d/%Y")
 
 ```
 Overview & Description
 ===========================================
-On this project i worked on NYC Restaurant inpections dataset. Some of the analysis i worked on it are:
+On this project i worked on NYC Restaurant inpections dataset. Some of the analysis i worked on it are: calculating and comparing valiolations data by year, weekdays and borought. Answer question such a witch year have the hightest or lowest violations. 
 
 
 I have used RSocrata API pachage to retrive the data from NYC OpenData website.
+
+I retrieved the data for this project from NYC OpenData
+link: https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j
 
 
 
@@ -57,7 +59,7 @@ Dashboard
 Row
 -----------------------------------------------------------------------
 
-### DataSet Events
+### All Violations count
 
 ```{r}
 valueBox(length(df.new$`VIOLATION CODE`),
@@ -113,40 +115,39 @@ valueBox(length(df.new$BORO[df.new$BORO == "STATEN ISLAND"] ),
 Row
 -------------------------------
 
-### Data Count
+### Violation Count
 
 ```{r}
-plot.1 <- df.new %>% group_by(`VIOLATION CODE`) %>%
+plot <- df.new %>% group_by(`VIOLATION CODE`) %>%
         summarise(total = n()) %>%
           plot_ly(x=~`VIOLATION CODE` , 
                   y = ~total , 
                   type = "bar",
                    xaxis = list(autotick = T, dtick = 1),
                 
-                 color = "blue") %>% layout(xaxis = list(title = "Violation Code"),
-                                                yaxis = list(title = "Data Count"))
+                 marker=list(color= ~`VIOLATION CODE` , size=20 , opacity=0.9) ) %>% layout(xaxis = list(title = "Violation Code"),yaxis = list(title = "Data Count"))
 
-plot.1
+plot
 
 
 ```
 
 
-###  Data By boro
+> This graph its showing the violations count. and we can see that the most common violation is "10F" which is "Non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed, raised, spaced or movable to allow accessibility for cleaning on all sides, above and underneath the unit."
+
+###  Violation count By borough
 
 ```{r}
-plot.1 <- df.new %>% group_by(BORO,.drop = T) %>%
+plot.graph <- df.new %>% group_by(BORO,.drop = T) %>%
         filter(BORO != "Missing" ) %>%
         summarise(total = n()) %>%
           plot_ly(x=~ BORO , 
                   y = ~total , 
                   type = "bar",
-                 #name = c("Bronx","Brooklyn","Manhattan","Queens","Staten Island"),
-                 name = c("Bronx","Brooklyn","Manhattan","Queens","Staten Island"),
-                 color = "blue") %>% layout(xaxis = list(title = "BORO"),
-                                                yaxis = list(title = "Data Count"))
+                 marker=list(color= ~total , size=20 , opacity=0.9)) %>% layout(xaxis = list(title = "Borough"),
+                                                yaxis = list(title = "Violation Count"))
 
-plot.1
+plot.graph
 ```
 
 Data Analysis 
@@ -155,44 +156,44 @@ Data Analysis
 Row {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 
-### Violations by Year
+### Violations by Weekday and Borough
 
 ````{r}
 
-plot.1 <- df.new %>% mutate( year = format(`INSPECTION DATE`, "%Y")) %>%
+df.new <- df.new %>% mutate(DAY = format(`INSPECTION DATE`, "%A"))
+
+total.weekday.borough <- df.new %>% group_by(BORO,DAY) %>% summarise(total = n()) %>% filter(BORO != "Missing" ) 
+
+gplot <- ggplot(total.weekday.borough, aes(x=BORO, y=total)) + geom_bar(stat = "identity", aes(fill=DAY), position ="dodge") + labs(x= "Borough", y="Violations Count ", title = "Violation by weekday and Borough")
+pl <- ggplotly(gplot)
+pl
+```
+
+
+> on this graph we are comparing the weekday violations and Borough. we can see that Manhattan as the hightest number of violations.
+
+
+### Violations by Year
+
+````{r}
+pl <- df.new %>% mutate( year = format(`INSPECTION DATE`, "%Y")) %>%
     group_by(year) %>%
         summarise(total = n()) %>%
           plot_ly(x=~ year , 
                   y = ~total , 
                   type = "bar",
-                 color = "blue") %>% layout(xaxis = list(title = "BORO"),
-                                                yaxis = list(title = "Data Count"))
+                 marker=list(color= ~year , size=20 , opacity=0.5) ) %>% layout(xaxis = list(title = "Years"),yaxis = list(title = "Data Count"))
+  
 
-plot.1
-
-
-```
-> This how many violations inspections date happened by Year counts.
-
-
-
-### Violations by Month
-
-````{r}
-
-plot.1 <- df.new %>% mutate( month = format(`INSPECTION DATE`, "%B")) %>%
-    group_by(month,BORO) %>%
-        summarise(total = n()) %>%
-          plot_ly(x=~ month , 
-                  y = ~ BORO , 
-                  type = "bar",
-                 color = "blue") %>% layout(xaxis = list(title = "BORO"),
-                                                yaxis = list(title = "Data Count"))
-
-plot.1
+pl
 
 
 ```
+
+
+> This is how many violations inspections happened by Year counts.we can see by looking at the graph that the numbers are increasing by year.
+
+
 
 
 Map Marker
@@ -207,8 +208,7 @@ Row
 
   
   leaflet(data = df.new) %>% addTiles() %>%
-    addMarkers(~longitude, ~latitude, label= ~as.character(`CRITICAL FLAG`), popup    = ~as.character(paste("Grade: ",GRADE)),clusterOptions = markerClusterOptions())
-
+    addMarkers(~longitude, ~latitude, label= ~as.character(`CRITICAL FLAG`), popup    = ~as.character(paste("Grade: ",GRADE,"Violation Code:", `VIOLATION CODE`,"Date:",`INSPECTION DATE`)),clusterOptions = markerClusterOptions() , options = leafletOptions(preferCanvas = TRUE) ) 
 
 ```
 
@@ -225,5 +225,6 @@ Row
 datatable(df.new)
 
 ```
+
 
 
