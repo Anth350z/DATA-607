@@ -35,6 +35,9 @@ library(wordcloud)
 #loading zipcode dataset
 data("zipcode")
 
+prueba <- read.socrata("https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j")
+
+
 #retriving the data using RSocrata API
 df <- read.socrata("https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j") %>% drop_na()
 
@@ -273,10 +276,19 @@ pl
 
 ```
 
+
+
+
+
 ### Conclusion
 
-The first thing that I saw showing on the graph was that yearly the restaurants are committing more violations being the most popular code violation "10F" which is "Non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed, raised, spaced or movable to allow accessibility for cleaning on all sides, above and underneath the unit.". also I can see that the borough with most violation committed in Manhattan.
+The first impression of the data is that each year there are more violations reported for NYC restaurants, with violation code 10F[1] being the most common. Also, Manhattan has the most violations amongst the five boroughs, with about 40% of all reported violations taking place in Manhattan.
 
+Some considerations for this analysis are that durring the data wrangling, there were many rows with missing or unavailable data, which were removed for the purpose of this project. Additionally, the Map Marker only has selected sample data as the full data set was very large, thus performance was affected. The NYC OpenData-DOHMH website source shows that the dataset was created on August 1, 2014, which most likely is the reason there is only visible data after 2015.
+
+
+
+>[1] Violation code 10F is definted as "non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed, raised, spaced or movable to allow accessibility for cleaning on all sides, above and underneath the unit."
 
 Map Marker
 ================
