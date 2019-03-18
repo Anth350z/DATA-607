@@ -1,0 +1,24 @@
+{
+	"Book List": [{
+			"title": "Everybody Lies",
+			"authors": "Seth Stephens-Davidowitz",
+			"publisher": "Dey Street Books",
+			"isbn_10": "978-1502585455",
+			"pages": 352
+		},
+		{
+			"title": "Algorithms to Live By: The Computer Science of Human Decisions",
+			"authors": ["Brian Christian", "Tom Griffiths"],
+			"publisher": "Picador; Reprint edition",
+			"isbn_10": "1250118360",
+			"pages": 368
+		},
+		{
+			"title": "Cien años de soledad ",
+			"authors": "Gabriel García Márquez",
+			"publisher": "Vintage Espanol",
+			"isbn_10": "0307474720",
+			"pages": 496
+		}
+	]
+}

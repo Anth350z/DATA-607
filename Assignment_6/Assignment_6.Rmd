@@ -1,0 +1,25 @@
+---
+title: "JSON, XML, HTML"
+output: 
+  flexdashboard::flex_dashboard:
+    source_code: embed
+    theme: yeti
+    orientation: rows
+    vertical_layout: fill
+    
+---
+
+===========
+
+Inputs {.sidebar data-width=300}
+-----------------------------------------------------------------------
+
+### Assignment 6
+### Anthony Munoz
+
+
+
+``{r}
+
+```
+
