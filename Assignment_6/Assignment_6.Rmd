@@ -9,17 +9,72 @@ output:
     
 ---
 
-===========
+```{r}
+library(rjson)
+library(dplyr)
+library(jsonlite)
+library(XML)
+library(RCurl)
+library(compare)
 
-Inputs {.sidebar data-width=300}
+```
+Data 607 Assignment_7
+==============
+
+Inputs {.sidebar data-width=250}
 -----------------------------------------------------------------------
 
-### Assignment 6
+### Assignment 7
 ### Anthony Munoz
 
+Row {.tabset .tabset-fade}
+-----------
+
+### json
+```{r echo=T}
+
+df.json <- fromJSON("https://raw.githubusercontent.com/Anth350z/DATA-607/master/Assignment_6/Book_list.json")
+
+df.json
+```
 
 
-``{r}
+
+### HTML
+```{r echo=T}
+data <- getURLContent("https://raw.githubusercontent.com/Anth350z/DATA-607/master/Assignment_6/Book_list.html")
+df.html <- readHTMLTable(data)
+
+df.html
+```
+### XML
+```{r echo=T}
+data <- getURLContent("https://raw.githubusercontent.com/Anth350z/DATA-607/master/Assignment_6/Book_list.xml")
+
+df.xml <- xmlToDataFrame(data)
+df.xml 
+```
+
+### Data Analysis
+
+On this Assignment we worked on reading data from 3 different format JSON, XML, and HTML and after we should to some comparing analysis between.
+
+
+```{r echo=T}
+#JSON
+str(df.json)
+#HTML
+str(df.html)
+#XML
+str(df.xml)
+
+#using the compare library to see if the values on the dataframe are equal
+
+compare(df.html,df.json)
+compare(df.html,df.xml)
+compare(df.xml,df.json)
+
 
 ```
 
+when we see the data its seem very similar but when we use the compare function, this returns false maybe due to some little change that can be observed such title column name different and the data frame structure.
