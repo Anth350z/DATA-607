@@ -1,0 +1,39 @@
+---
+title: "project_3"
+author: "Anthony Munoz"
+date: "3/23/2019"
+output: html_document
+---
+
+```{r}
+library(rvest)
+library(stringr)
+```
+
+
+
+```{r}
+data <- read_html("https://www.kdnuggets.com/2018/05/poll-tools-analytics-data-science-machine-learning-results.html")
+
+
+table1 <- data %>% html_nodes("table") %>% .[1] %>% html_table(fill = T) %>% as.data.frame() %>% lapply( gsub, pattern='%', replacement='' ) %>% as.data.frame()  %>% droplevels()
+colnames(table1) <- c("Software", "2018 % share","% change 2018 vs 2017")
+
+#as.numeric(as.character(table1$`2018 % share`))
+
+table2 <- data %>% html_nodes("table") %>% .[2] %>% html_table(fill = T) %>% as.data.frame() %>% lapply( gsub, pattern='%', replacement='') %>% as.data.frame()
+colnames(table2) <- c("Tool", "% change","2018 % share","2017 % share")
+
+
+
+table3 <- data %>% html_nodes("table") %>% .[3] %>% html_table(fill = T) %>% as.data.frame() %>% lapply( gsub, pattern='%', replacement='') %>% as.data.frame()
+colnames(table3) <- c("Tool", "% change","2018 % share","2017 % share")
+
+
+table4 <- data %>% html_nodes("table") %>% .[4] %>% html_table(fill = T) %>% as.data.frame() %>% lapply( gsub, pattern='%', replacement='') %>% as.data.frame()
+colnames(table4) <- c("Tool", "% change","2018 % share","2017 % share")
+
+
+
+
+```
