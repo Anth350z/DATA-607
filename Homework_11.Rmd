@@ -1,0 +1,59 @@
+---
+title: "HM_11 DATA-607"
+author: "Anthony Munoz"
+date: "4/19/2019"
+output: 
+  html_document:
+    highlight: haddock
+    theme: darkly
+    toc: yes
+    toc_depth: 5
+    toc_float: yes
+---
+```{r echo=FALSE}
+library(knitr)
+
+```
+
+
+
+
+## Hulu
+
+Hulu is an online media entertainment company with a multiplatform content whose main focus is the streaming television series, videos, movie, Hulu original shows, etc. As 2018 the company as 28 million subscribers.
+
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('pic.png')
+```
+
+## Scenario Design analysis
+
+### Who are your target user?
+The Hulu targets are customers thought their different plans price available for streaming their content.
+
+### what are their key goals?
+The Hulu keys goals are to provide a vast of series tv shows to the customers. it can be current or past tv shows series. besides TV shows streaming there also, Hulu offers movies, Hulu Originals and more. They offer their products in multiplatform ways to try to keep their customers engage and comfortable using different devices to access to Hulu. services
+
+### How can you help them accomplish those goals?
+
+Hulu helps the customers to accomplish this goal having very entertainment reliable multiplatform services which recommended them good engageable products.
+
+
+## Reverse Engineering
+
+The Hulu online streaming seems very well structure for which is kinda challenging on reverse engineering. some of the noticeable aspects that I see is that the recommender system is very heavy on what you are watching and then you can see that even in the subsections still recommends mostly very similar material which instead will be more interesting to see a better variety of popular content taking in consideration that subsections. we can also observe you can click on the Stop button if don't want to see that recommendation anymore which is very effective especially when you see to much content of the same topic.
+
+## Recommendation
+
+The Hulu company has a very nice, clean and easy interface which is very comfortable and engageable to use. 
+some of the recommendations will be good to see is a "recommending YES or NOT this movie/TV Series/etc" system for this streaming media app after you finished watching and then the recommender system algorithms can use that to predict on what you liked and use it show recommendation for content like this.
+Also, we can see they have 5 main menus tabs such as "Networks, TV shows, Movies, Hulu Originals, Kids" and also offer a list of more categories for example "Drama, Action, Sports and more " if you select Action it will bring everything on that section and doesn't let you query furthers for example "tab: Movies and category: Action".
+when you pay for the membership that includes advertisement some its ask you what type of advertisement you would like to see, I think it should be good to ask also sometimes question that helps to make the recommender system better for example like q quick question "do you enjoy more Drama movie or Action movie?
+
+## References
+
+https://en.wikipedia.org/wiki/Hulu
+https://medium.com/hulu-tech-blog/applying-deep-learning-to-collaborative-filtering-how-hulu-builds-its-industry-leading-3b10a4ed7470
+
+
