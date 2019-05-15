@@ -1,0 +1,210 @@
+---
+title: "final-project-data-607"
+author: "Anthony Munoz"
+date: "5/14/2019"
+output: 
+  html_document:
+    highlight: haddock
+    theme: j
+    toc: yes
+    toc_depth: 5
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(magrittr)
+library(lubridate)
+#library(rvest)
+library(stringr)
+library(mongolite)
+library(ggplot2)
+library(plotly)
+
+```
+
+# Introdution
+
+For this project, I decided to work with the NYC criminal complaints dataset which is available on the Open Data NYC website. I will be focusing through the project on the observation on the complaints and analyzing them by average and counts measure on months and years and how is the data spreading by borough(Manhattan Brooklyn, Staten Island, Queens, The Bronx).
+
+hopefully with the mission to visualize and understand and see if criminal complaints are increasing/decreasing on average and comparison.
+
+
+# Data  
+##Data Source
+The data was retieve from the NYC Open Data <br>
+https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Data-Historic/qgea-i56i
+
+The dataset coinstain about 6.4M rows. <br>
+it has 35 variables.
+
+## Data Preparation DataBricks Spark
+
+Because this dataset is a big file i decided to big data tools such as Databricks SPark tools in order to work with faster filtering,manipulate and wrangling the data.
+
+
+
+
+## Data loading MongoDB
+
+After the the big data was organized and mipulated on Databricks Spark. Made a connection from Databricks notebook to MongoDB in order to export the subset of the processed data for later on access the data on Rstudio connection back on MongoDb Atlas Server and retrive the data.
+
+```{r echo=FALSE}
+#url String to connec to MongoDB 
+url = "mongodb+srv://anth_sps_data_607:Root1234root@cuny-data-607-w0k6j.mongodb.net/test?retryWrites=true"
+
+```
+
+```{r , message=FALSE,warning=FALSE}
+
+#MongoDB connection Object
+con <- mongo(collection = "data_count_days", db = "data_607", url = url)
+df.count.days <- con$find()
+colnames(df.count.days) <-c("date","type","count","boro")
+
+
+
+con <- mongo(collection = "data_count_mean_month", db = "data_607", url = url)
+df.count.mean.month <- con$find()
+colnames(df.count.mean.month) <-c("mean","date")
+
+
+con <- mongo(collection = "data_count_sum_month", db = "data_607", url = url)
+df.count.sum.month <- con$find()
+colnames(df.count.sum.month) <- c("sum","date")
+
+
+con <- mongo(collection = "data_count_type", db = "data_607", url = url)
+df.count.type <- con$find()
+colnames(df.count.type) <- c("type","count")
+
+con <- mongo(collection = "data_count_days_alone", db = "data_607", url = url)
+df.count.days.alone <- con$find()
+colnames(df.count.days.alone) <- c("date","count")
+
+
+con <- mongo(collection = "data_count_boro", db = "data_607", url = url)
+df.count.boro <- con$find()
+colnames(df.count.boro) <- c("type","count","boro")
+
+
+con <- mongo(collection = "data_count_boro_days", db = "data_607", url = url)
+df.count.boro.days <- con$find()
+colnames(df.count.boro.days) <- c("count","boro","date")
+
+
+
+```
+#Data cleaning and wrangling
+
+```{r}
+
+df.year.count <- df.count.days.alone %>% group_by(year=floor_date(as.Date(as.character(date),"%m/%d/%Y"), "year")) %>% summarise(total = sum(count)) %>% filter(as.Date(year,"%m/%d/%Y") > "1999-01-01" & as.Date(year,"%m/%d/%Y") < "2019-01-01") 
+
+df.count.boro  <- df.count.boro[-15,] 
+df.count.days <- df.count.days %>% filter(type != "LAW_CAT_CD" ) 
+df.count.type <- df.count.type %>% filter(type != "LAW_CAT_CD" ) 
+
+df.count.boro.days <- df.count.boro.days %>% filter(boro != "BORO_NM" ) 
+
+
+```
+#Data Exploratory
+
+```{r}
+
+
+pl1 <- df.count.type  %>%
+          plot_ly(x=~type , 
+                  y = ~count , 
+                  type = "bar",
+                   xaxis = list(autotick = T, dtick = 1),
+                 marker=list(color= ~count , size=20 , opacity=0.9) ) %>% layout(xaxis = list(title = "Type of Crime"),yaxis = list(title = "Number of Criminal Complaints"))
+
+pl1
+
+
+```
+
+
+
+```{r}
+pl <- df.count.boro %>%  ggplot( aes(boro, count))
+pl + geom_boxplot(varwidth=T, fill="blue") + 
+    labs(title="Box plot", 
+         subtitle="Criminal Complaints grouped by Borough of NYC",
+         x="Borough of NYC",
+         y="Criminal Complaints")
+
+```
+
+```{r eval=FALSE }
+
+
+
+```
+
+```{r}
+
+
+pl2 <- df.year.count %>% 
+          plot_ly(x=~ year , 
+                  y = ~total , 
+                  type = "bar",
+                 marker=list(color= ~total , size=10 , opacity=0.5) ) %>% layout(xaxis = list(title = "Years"),yaxis = list(title = "Number of Violations"))
+  
+pl2
+
+
+
+```
+
+#Modeling
+
+ANOVA
+
+
+H0 - The means of daily count crime by borough is the same and doesnt vary.
+
+Ha- The means of daily count crime by borough indeed vary and are not the same.
+
+```{r}
+
+
+dat <-  df.count.boro.days %>% filter(as.Date(date,"%m/%d/%Y") > "2006-01-01" & as.Date(date,"%m/%d/%Y") < "2018-01-01")
+
+
+df.anova <- dat %>% select(boro,count)
+
+
+anova.analysis <- aov(count ~ boro,data = df.anova)
+
+summary(anova.analysis)
+
+
+ggplot(df.anova, aes(x=boro, y=count,fill=boro)) + 
+    geom_boxplot()
+
+
+
+```
+
+
+# conclusion
+
+Doing the ANOVA analysis and comparing the mean values by the borough over the select range 2006-2008. we obtain a P value below 5 % and we reject the hypothesis null.
+
+This is not a conclusive approach due that other factors may affect the final result and further research is needed.
+
+# References
+
+https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Data-Historic/qgea-i56i
+
+https://docs.databricks.com/index.html
+
+https://docs.atlas.mongodb.com/
+
+https://docs.databricks.com/spark/latest/sparkr/index.html
+
